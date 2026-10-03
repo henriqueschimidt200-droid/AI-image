@@ -1,0 +1,39 @@
+AI CREATOR — CORREÇÃO DEFINITIVA DO APK
+
+O erro anterior era:
+Build failed due to use of deleted Android v1 embedding.
+
+Esta versão do projeto corrige isso automaticamente no GitHub Actions.
+O workflow apaga a pasta android antiga e cria uma nova usando o template Android moderno da versão estável atual do Flutter.
+
+O QUE FAZER NO GITHUB
+
+1. Extraia este ZIP no computador.
+2. No seu repositório do GitHub, substitua os arquivos do projeto pelos arquivos desta pasta.
+3. Confirme que existe:
+   .github/workflows/build-apk.yml
+4. Faça Commit changes.
+5. Abra Actions.
+6. Selecione “Gerar APK - AI Creator”.
+7. Clique em “Run workflow”.
+8. Espere terminar.
+9. Se aparecer verde, abra o resultado e baixe o artefato:
+   AI-Creator-APK
+
+SE DER ERRO
+
+Abra o resultado da execução e procure:
+“🩺 Diagnóstico automático”
+
+Se falhar, baixe:
+“APK-Debug-Logs”
+
+IMPORTANTE SOBRE FIREBASE
+
+O projeto ainda contém um placeholder em:
+lib/firebase_options.dart
+
+Para usar login Google, Firestore, Storage e autenticação de verdade, depois será necessário configurar o Firebase/FlutterFire para o seu próprio projeto.
+
+NÃO COLOQUE CHAVES SECRETAS DO HUGGING FACE NO FLUTTER OU NO GITHUB.
+A chave HF deve ficar apenas no backend/functions/.env ou nos Secrets apropriados.

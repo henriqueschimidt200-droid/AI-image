@@ -7,12 +7,20 @@ import 'services/auth_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const AICreatorApp());
+  bool firebaseReady = false;
+  try {
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    firebaseReady = true;
+  } catch (_) {
+    // The app still opens when Firebase has not been configured yet.
+    // This prevents the release APK from getting stuck on the splash screen.
+  }
+  runApp(AICreatorApp(firebaseReady: firebaseReady));
 }
 
 class AICreatorApp extends StatelessWidget {
-  const AICreatorApp({super.key});
+  final bool firebaseReady;
+  const AICreatorApp({super.key, required this.firebaseReady});
 
   @override
   Widget build(BuildContext context) {
@@ -31,41 +39,18 @@ class AICreatorApp extends StatelessWidget {
           surface: const Color(0xFF10111D),
           surfaceContainerHighest: const Color(0xFF171827),
         ),
-        cardTheme: CardThemeData(
-          color: const Color(0xFF11121E),
-          elevation: 0,
-          margin: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-            side: BorderSide(color: Colors.white.withOpacity(.07)),
-          ),
-        ),
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: const Color(0xFF11121E),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: BorderSide(color: Colors.white.withOpacity(.06)),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: BorderSide(color: Colors.white.withOpacity(.06)),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: const BorderSide(color: Color(0xFF8B5CF6), width: 1.4),
-          ),
-        ),
       ),
-      home: StreamBuilder(
-        stream: AuthService.authStateChanges,
-        builder: (_, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const _Splash();
-          }
-          return snapshot.hasData ? const HomeScreen() : const LoginScreen();
-        },
-      ),
+      home: firebaseReady
+          ? StreamBuilder(
+              stream: AuthService.authStateChanges,
+              builder: (_, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const _Splash();
+                }
+                return snapshot.hasData ? const HomeScreen() : const LoginScreen();
+              },
+            )
+          : const LoginScreen(firebaseUnavailable: true),
     );
   }
 }
@@ -74,6 +59,12 @@ class _Splash extends StatelessWidget {
   const _Splash();
   @override
   Widget build(BuildContext context) => const Scaffold(
-    body: Center(child: Icon(Icons.auto_awesome, size: 72, color: Color(0xFFA78BFA))),
+    body: Center(
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        ClipRRect(borderRadius: BorderRadius.circular(24), child: Image.asset('assets_ai_icon.png', width: 88, height: 88)),
+        SizedBox(height: 18),
+        Text('AI Creator', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+      ]),
+    ),
   );
 }

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final bool firebaseUnavailable;
+  const LoginScreen({super.key, this.firebaseUnavailable = false});
   @override State<LoginScreen> createState() => _LoginScreenState();
 }
 class _LoginScreenState extends State<LoginScreen> {
@@ -34,13 +36,32 @@ class _LoginScreenState extends State<LoginScreen> {
                   borderRadius:BorderRadius.circular(28),
                   boxShadow:[BoxShadow(color:const Color(0xFF8B5CF6).withOpacity(.35),blurRadius:35)]
                 ),
-                child:const Icon(Icons.auto_awesome,size:42)),
+                child: ClipRRect(borderRadius: BorderRadius.circular(22), child: Image.asset('assets_ai_icon.png', width: 64, height: 64))),
               const SizedBox(height:26),
               const Text('Crie sem limites.',style:TextStyle(fontSize:40,fontWeight:FontWeight.w900,height:1.0)),
               const SizedBox(height:10),
               Text('Imagens, vídeos e ideias transformados por IA em um só lugar.',
                 style:TextStyle(fontSize:16,color:Colors.white.withOpacity(.62),height:1.45)),
               const SizedBox(height:32),
+              if (widget.firebaseUnavailable) ...[
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1C1D2A),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.white.withOpacity(.08)),
+                  ),
+                  child: const Text('Modo de demonstração: o app abriu normalmente. Configure o Firebase para ativar login e sincronização na nuvem.', style: TextStyle(fontSize: 13, height: 1.35)),
+                ),
+                const SizedBox(height: 14),
+                OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 17), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18))),
+                  onPressed: () => Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen())),
+                  icon: const Icon(Icons.play_arrow_rounded),
+                  label: const Text('Entrar no modo demonstração'),
+                ),
+                const SizedBox(height: 18),
+              ],
               FilledButton.icon(
                 style:FilledButton.styleFrom(padding:const EdgeInsets.symmetric(vertical:17),shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(18))),
                 onPressed:loading?null:()=>action(()=>AuthService.signInWithGoogle()),
